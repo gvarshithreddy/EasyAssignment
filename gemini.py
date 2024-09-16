@@ -7,7 +7,7 @@ from extractQuestions import extract_questions
 from convert import convert_md_to_docx
 from dotenv import load_dotenv
 load_dotenv('.env')
-print(os.getenv("API_KEY"))
+print("Make sure to add your gemini api key in the .env file" if os.getenv("API_KEY") == "YOUR_API_KEY" else "API key loaded successfully")
 genai.configure(api_key=os.getenv("API_KEY"))
 generation_config = genai.GenerationConfig(
         max_output_tokens=1000,
