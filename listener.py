@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 import sys
 from gemini import generate_summary
-from test2 import ScreenshotApp
+from screenshot import ScreenshotApp
 from dotenv import load_dotenv
 load_dotenv('.env')
 if not os.path.exists(os.getenv("ANSWER_SAVE_FOLDER")):
