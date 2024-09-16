@@ -6,27 +6,16 @@ import time
 from extractQuestions import extract_questions
 from convert import convert_md_to_docx
 from dotenv import load_dotenv
-load_dotenv('.env.dev')
+load_dotenv('.env')
 print(os.getenv("API_KEY"))
-genai.configure(api_key=os.getenv("API_KEY",'dev'))
+genai.configure(api_key=os.getenv("API_KEY"))
 generation_config = genai.GenerationConfig(
         max_output_tokens=1000,
         temperature=0.1,
     )
 from datetime import datetime
 
-def get_file_path():
-    current_time = datetime.now()
 
-    # Format the date and time as 'YYYY-MM-DD' for date and 'HH-MM-SS' for time
-    date_str = current_time.strftime("%Y-%m-%d")
-    time_str = current_time.strftime("%H-%M-%S")
-
-    # Generate the file name in the required format
-    filename = f"Answers-{date_str}-{time_str}"
-
-    # Print the generated filename
-    return(filename)
 
 def append_to_file(file_path, content):
     """
@@ -42,8 +31,9 @@ def append_to_file(file_path, content):
     except IOError as e:
         print(f"An error occurred while accessing the file: {e}")
 
+ANSWER_SAVE_PATH = os.getenv("ANSWER_SAVE_FOLDER")
 
-def generate_summary(img_path,length=500):
+def generate_summary(img_path,file_path,length=500,):
     model = genai.GenerativeModel("gemini-1.5-flash")
     time.sleep(1)
     image = PIL.Image.open(img_path)
@@ -57,7 +47,7 @@ def generate_summary(img_path,length=500):
         prompt = f"Write a {length} essay to the following question by referencing 'Modern Database Management' by Jeff Hopper, 12th edition (2016). Ensure that your response is precise and clearly linked to the textbook content. Only give the answer, don't say anythong else. \nQuestion: {question}"
         response = model.generate_content(prompt)
         answer+=question+ '\n'+markdown('>'+response.text) + '\n'
-    filepath = "Answers/"+get_file_path()
+    filepath = ANSWER_SAVE_PATH+file_path
     append_to_file(filepath+".md",answer)
     convert_md_to_docx(filepath+".md",filepath+".docx")
     return answer

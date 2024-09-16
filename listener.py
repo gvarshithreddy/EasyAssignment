@@ -1,11 +1,14 @@
 import tkinter as tk
 import multiprocessing
-import time
+from datetime import datetime
 import os
 import sys
 from gemini import generate_summary
 from test2 import ScreenshotApp
-
+from dotenv import load_dotenv
+load_dotenv('.env')
+if not os.path.exists(os.getenv("ANSWER_SAVE_FOLDER")):
+    os.makedirs(os.getenv("ANSWER_SAVE_FOLDER"))
 # Define the function for the ScreenshotApp
 def run_screenshot_app(queue, stop_event):
     root = tk.Tk()
@@ -35,8 +38,7 @@ def generate_summaries(queue, stop_event):
             # Wait for screenshot paths in the queue
             screenshot_path = queue.get(timeout=1)  # Timeout to check for stop_event regularly
             if screenshot_path:
-                text = generate_summary(os.path.normpath(screenshot_path), length="300")
-                # print(f"Summary for {screenshot_path}: {text}")
+                text = generate_summary(os.path.normpath(screenshot_path),os.getenv('ANSWER_FILE_PATH'), length="300")
         except multiprocessing.queues.Empty:
             # If no screenshot is in the queue, continue checking
             print("No screenshot in the queue.")
@@ -99,8 +101,22 @@ class ApplicationGUI:
     def on_closing(self):
         self.stop_processes()
 
+def get_file_path():
+    current_time = datetime.now()
+
+    # Format the date and time as 'YYYY-MM-DD' for date and 'HH-MM-SS' for time
+    date_str = current_time.strftime("%Y-%m-%d")
+    time_str = current_time.strftime("%H-%M-%S")
+
+    # Generate the file name in the required format
+    filename = f"Answers-{date_str}-{time_str}"
+
+    # Print the generated filename
+    return(filename)
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = ApplicationGUI(root)
     root.protocol("WM_DELETE_WINDOW", app.on_closing)
+    os.environ['ANSWER_FILE_PATH'] = get_file_path()
     root.mainloop()
